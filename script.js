@@ -1,42 +1,36 @@
 // script.js
 
-// Replace with your playlist ID and access token
-const playlistId = '1mHkNHuBfOfy49dvWQDvly';
-const accessToken = 'BQAsscr00titdocn3hoSNEJgrwuWBgi5nnAgsCgWjWU0Qyg3XKIxIZP2faooXU-arxLatUWztclc1jIoym1BxVUhkVJgkt168kYrBW7KTwd_ZUYqLAVMsVQRgiOTMdm920dZvHb-xva0YzoSEwTVcPjgrdVW3TkLHR8sgoMo7Stx9dLpnCHK4Q9MqfnnLmhowlQZOx0hhAtyLhL0JMloaJhWJHMH55XklyE';
+const accessToken = 'BQAsscr00titdocn3hoSNEJgrwuWBgi5nnAgsCgWjWU0Qyg3XKIxIZP2faooXU-arxLatUWztclc1jIoym1BxVUhkVJgkt168kYrBW7KTwd_ZUYqLAVMsVQRgiOTMdm920dZvHb-xva0YzoSEwTVcPjgrdVW3TkLHR8sgoMo7Stx9dLpnCHK4Q9MqfnnLmhowlQZOx0hhAtyLhL0JMloaJhWJHMH55XklyE'; // Replace with your actual Spotify access token
+const trackId = '3SeDS5sSoWnwAZvVgkdKzf'; // Replace with the track ID of the song you want to display
 
-// Function to get songs from a Spotify playlist
-async function getPlaylistTracks() {
+async function fetchSongName(trackId) {
     try {
-        const response = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+        const response = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
             headers: {
-                Authorization: `Bearer ${accessToken}`
-            }
+                Authorization: `Bearer ${accessToken}`,
+            },
         });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
 
         const data = await response.json();
-        return data.items.map(item => item.track.name);
+        return data.name; // Return the name of the track
+
     } catch (error) {
-        console.error('Error fetching playlist tracks:', error);
+        console.error("Error fetching track name:", error);
+        return null;
     }
 }
 
-// Function to display random songs
-async function displayRandomSongs() {
-    const songList = document.getElementById('songList');
-    songList.innerHTML = ''; // Clear previous songs
-
-    const songs = await getPlaylistTracks();
-    if (songs) {
-        // Shuffle the songs and pick 5 random songs to display
-        const randomSongs = songs.sort(() => 0.5 - Math.random()).slice(0, 5);
-
-        randomSongs.forEach(song => {
-            const listItem = document.createElement('li');
-            listItem.textContent = song;
-            songList.appendChild(listItem);
-        });
+async function displaySongName() {
+    const songName = await fetchSongName(trackId);
+    const songNameElement = document.getElementById("song-name");
+    
+    if (songName) {
+        songNameElement.textContent = `Song Name: ${songName}`;
+    } else {
+        songNameElement.textContent = "Error fetching song name.";
     }
 }
-
-// Attach event listener to button
-document.getElementById('getSongs').addEventListener('click', displayRandomSongs);
